@@ -1,14 +1,8 @@
 import os
 import json
-import requests
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher
 from httpx import AsyncClient
 import asyncio
-import aiosqlite
-from aiogram import Router, F
-from aiogram.filters import Command, StateFilter
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 from variables import BOT_TOKEN, URL
 from handlers import common, user_chatting
@@ -44,17 +38,22 @@ async def neuro_chat(message: Message,user_id,character):
         "seed": -1
     }
     print(data)
-    httpx_client = AsyncClient()
-    r = await httpx_client.post(URL, headers=headers, json=data, timeout=None)
-    assistant_message = r.json()['choices'][0]['message']['content']
-    with open(f"C:/Users/user/Desktop/neuro/ooba_tg_bot/data/{user_id}_{character}_response_data.json", "w") as json_file:
-                json.dump(r.json(), json_file)
-    history.append({"role": "assistant", "content": assistant_message})
-    with open(f"C:/Users/user/Desktop/neuro/ooba_tg_bot/data/{user_id}_{character}_history.json", "w") as history_file:
-                json.dump(history, history_file)
-    print(assistant_message)
-    assistant_message_translated_from_en = translator.translate(f"{assistant_message}", dest="ru")
-    return assistant_message_translated_from_en.text
+    async with AsyncClient() as httpx_client:
+        try:
+            r = await httpx_client.post(URL, headers=headers, json=data, timeout=None)
+            assistant_message = r.json()['choices'][0]['message']['content']
+            with open(f"C:/Users/user/Desktop/neuro/ooba_tg_bot/data/{user_id}_{character}_response_data.json", "w") as json_file:
+                        json.dump(r.json(), json_file)
+            history.append({"role": "assistant", "content": assistant_message})
+            with open(f"C:/Users/user/Desktop/neuro/ooba_tg_bot/data/{user_id}_{character}_history.json", "w") as history_file:
+                        json.dump(history, history_file)
+            print(assistant_message)
+            assistant_message_translated_from_en = translator.translate(f"{assistant_message}", dest="ru")
+            return assistant_message_translated_from_en.text
+        except Exception as e:
+              print(e)
+        finally:
+              await httpx_client.close()
 
 
 async def main():
