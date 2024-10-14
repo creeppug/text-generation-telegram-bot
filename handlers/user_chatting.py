@@ -2,9 +2,9 @@ from aiogram import Router, F
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from aiogram.types import InlineKeyboardButton, Message
 from aiogram.types import CallbackQuery
 from ooba_tg import neuro_chat
 from sql import new_chat_history,select_from_character_list,select_from_chat_history, select_from_chat_history_command, close_chat
@@ -19,7 +19,7 @@ class UserChatting(StatesGroup):
 class DelHistory(StatesGroup):
     DeleteHistory = State()
 
-###############################################################################################
+
 async def chat_start(message: Message,callback: CallbackQuery, state: FSMContext,character):
     await message.answer(text="Поздоровайтесь!")
     await state.set_state(UserChatting.UserChat)
@@ -27,9 +27,7 @@ async def chat_start(message: Message,callback: CallbackQuery, state: FSMContext
     current_datetime = datetime.datetime.now()
     if await select_from_chat_history(callback.from_user.id,f"{callback.from_user.id}_{character}_history.json") is None:
         await new_chat_history(callback.from_user.id,callback.from_user.username,character,f"{callback.from_user.id}_{character}_history.json",current_datetime)
-###############################################################################################
 
-###############################################################################################
 @router.message(Command("history"))
 async def get_chat_history(message: Message):
     history_list = await select_from_chat_history_command(message.from_user.id)
@@ -39,7 +37,6 @@ async def get_chat_history(message: Message):
     else:
         for i in range(history_len):
             await message.answer(text = f"Персонаж: {history_list[i][3]}\nДата начала чата: {history_list[i][5]}\nДата конца чата: {history_list[i][6]}")
-###############################################################################################
 
 @router.message(Command("get_characters"))
 async def character_menu(message: Message, state: FSMContext):

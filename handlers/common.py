@@ -1,9 +1,7 @@
-from aiogram import F, Router
+from aiogram import Router
 from aiogram.filters import Command
-from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import default_state
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message
 from sql import register_to_bot
 import datetime
 
